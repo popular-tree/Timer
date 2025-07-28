@@ -92,5 +92,7 @@ with col_left:
         st.markdown(f'<p style="text-align:right;"><strong>{int(progress*100)}%</strong></p>'
         , unsafe_allow_html=True)
 
+    st.markdown(st.session_state.remaining_seconds if st.session_state.remaining_seconds>0 else st.session_state.total_seconds)
+
 with col_right:
     pass
