@@ -110,7 +110,7 @@ with col_left:
          font-size: 4rem;\
          font-weight: bold;\
          margin: 2rem 0;">
-            {st.session_state.remaining_seconds}
+            {st.session_state.total_seconds}
         </div>
     """, unsafe_allow_html=True)
 
