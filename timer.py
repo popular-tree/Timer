@@ -105,11 +105,7 @@ with col_left:
     """, unsafe_allow_html=True)
 
     st.markdown(f"""
-        <div class="timer-time"\
-        style="text-align: center\
-         font-size: 4rem;\
-         font-weight: bold;\
-         margin: 2rem 0;">
+        <div class="timer-time" style="text-align: center font-size: 4rem; font-weight: bold; margin: 2rem 0;">
             {st.session_state.total_seconds}
         </div>
     """, unsafe_allow_html=True)
