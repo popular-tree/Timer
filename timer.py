@@ -93,7 +93,26 @@ with col_left:
         , unsafe_allow_html=True)
 
     st.subheader('남은 시간')
-    st.markdown(st.session_state.remaining_seconds if st.session_state.remaining_seconds>0 else st.session_state.total_seconds)
+    st.markdown("""
+        <style>
+        /* 버튼 컨테이너 가운데 정렬 */
+        .stColumns > div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.markdown(f"""
+        <div class="timer-time"\
+        style="text-align: center\
+         font-size: 4rem;\
+         font-weight: bold;\
+         margin: 2rem 0;">
+            {st.session_state.remaining_seconds}
+        </div>
+    """, unsafe_allow_html=True)
 
 with col_right:
     pass
