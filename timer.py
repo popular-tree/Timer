@@ -173,13 +173,13 @@ with col_left:
                 st.session_state.start_time = time.time()
                 st.session_state.total_pause_time = 0
                 st.session_state.timer_completed = False
-                st.success("타이머가 시작되었습니다.")
+                st.toast("타이머가 시작되었습니다.")
                 st.rerun()
         elif st.session_state.timer_running and not st.session_state.timer_paused:
             if st.button("⏸️", key="pause_btn", help="일시정지"):
                 st.session_state.timer_paused = True
                 st.session_state.pause_start_time = time.time()
-                st.info("타이머가 일시정지되었습니다.")
+                st.toast("타이머가 일시정지되었습니다.")
                 st.rerun()
         elif st.session_state.timer_paused:
             if st.button("▶️", key="resume_btn", help="재개", type="primary"):
@@ -188,7 +188,7 @@ with col_left:
                     pause_duration = time.time() - st.session_state.pause_start_time
                     st.session_state.total_pause_time += pause_duration
                     st.session_state.pause_start_time = None
-                st.success("타이머가 재개되었습니다.")
+                st.toast("타이머가 재개되었습니다.")
                 st.rerun()
 
     with button_col2:
@@ -201,7 +201,7 @@ with col_left:
             st.session_state.remaining_seconds = st.session_state.total_seconds
             st.session_state.timer_completed = False
             st.session_state.show_celebration = False
-            st.info("타이머가 리셋되었습니다.")
+            st.toast("타이머가 리셋되었습니다.")
             st.rerun()
 
     with button_col3:
@@ -215,6 +215,45 @@ with col_left:
                 st.session_state.show_celebration = False
             st.toast("1분이 추가되었습니다!")
             st.rerun()
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # 배경음악 리스트
+    background_music = {
+        "없음": None,
+        "Bubblegum Code-2": "./music/Bubblegum Code-2.mp3",
+        "Bubblegum Code": "./music/Bubblegum Code.mp3",
+        "Code in the Moonlight": "./music/Code in the Moonlight.mp3",
+        "Gentle Streams": "./music/Gentle Streams.mp3",
+        "Late Night Thoughts": "./music/Late Night Thoughts.mp3",
+        "Soft Light Waves": "./music/Soft Light Waves.mp3"
+    }
+
+    # 배경음악 섹션
+    st.markdown('<div class="music-container">', unsafe_allow_html=True)
+    st.markdown("🎵 **배경 음악**")
+
+    st.markdown("**음악 선택**")
+    selected_music = st.selectbox(
+        "음악을 선택하세요:",
+        options=list(background_music.keys()),
+        index=list(background_music.keys()).index(st.session_state.selected_music),
+        key="music_select",
+        label_visibility="collapsed"
+    )
+    st.session_state.selected_music = selected_music
+
+    if st.session_state.selected_music!='없음':
+        try:
+            # music 폴더가 streamlit app과 같은 디렉토리에 있다고 가정
+            audio_file_path = f"{background_music[st.session_state.selected_music]}"
+            st.audio(audio_file_path, format="audio/mpeg", loop=True, autoplay=st.session_state.music_auto_play)
+        except Exception as e:
+            st.warning(f"음악 파일을 찾을 수 없습니다: {audio_file_path}")
+    
+    # 음악 자동재생 설정
+    auto_play = st.toggle("음악 자동재생", value=st.session_state.music_auto_play, key="auto_play_toggle")
+    st.session_state.music_auto_play = auto_play
 
     st.markdown('</div>', unsafe_allow_html=True)
 
