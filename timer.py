@@ -366,6 +366,6 @@ st.divider()
 # 푸터
 st.markdown("""
 <div style='text-align: center; color: #666; font-size: 0.9em; margin-top: 2rem;'>
-    © WENIV All rights reserved
+    © Popular_Tree All rights reserved
 </div>
 """, unsafe_allow_html=True)
