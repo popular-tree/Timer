@@ -17,30 +17,49 @@ st.markdown("""
     </div>
     """, unsafe_allow_html=True)
 
+# 세션 스테이트 초기화
 if 'timer_running' not in st.session_state:
-    st.session_state.timer_running=False
+    st.session_state.timer_running = False
 if 'timer_paused' not in st.session_state:
-    st.session_state.timer_paused=False
+    st.session_state.timer_paused = False
 if 'start_time' not in st.session_state:
-    st.session_state.start_time=None
-if 'total_pause_time' not in st.session_state:
-    st.session_state.total_pause_time=0
+    st.session_state.start_time = None
+if 'pause_start_time' not in st.session_state:  # 수정: 일시정지 시작 시간 추가
+    st.session_state.pause_start_time = None
+if 'total_pause_time' not in st.session_state:  # 수정: 총 일시정지 시간
+    st.session_state.total_pause_time = 0
 if 'total_seconds' not in st.session_state:
-    st.session_state.total_seconds=60 #타이머 기본 값
+    st.session_state.total_seconds = 30 * 60  # 타이머 기본 시간
 if 'remaining_seconds' not in st.session_state:
-    st.session_state.remaining_seconds=0
+    st.session_state.remaining_seconds = 30 * 60
 if 'timer_completed' not in st.session_state:
-    st.session_state.timer_completed=False
+    st.session_state.timer_completed = False
 if 'show_celebration' not in st.session_state:
-    st.session_state.show_celebration=False
+    st.session_state.show_celebration = False
+if 'selected_music' not in st.session_state:
+    st.session_state.selected_music = "없음"
+if 'music_auto_play' not in st.session_state:
+    st.session_state.music_auto_play = True
+
+def get_timer_status():
+    """현재 타이머 상태 반환"""
+    if st.session_state.timer_completed:
+        return "completed"
+    elif st.session_state.timer_running and not st.session_state.timer_paused:
+        return "running"
+    elif st.session_state.timer_paused:
+        return "paused"
+    else:
+        return "stopped"
 
 def update_timer():
-    if st.session_state.timer_running and not st.session_state.timer_paused: #타이머 실행 중
-        current_time=time.time()
-        elapsed = current_time-st.session_state.start_time-st.session_state.total_pause_time
-        remaining = st.session_state.total_seconds-int(elapsed)
-
-        if remaining<=0:
+    """타이머 업데이트 - 수정된 로직"""
+    if st.session_state.timer_running and not st.session_state.timer_paused:
+        current_time = time.time()
+        elapsed = current_time - st.session_state.start_time - st.session_state.total_pause_time
+        remaining = st.session_state.total_seconds - int(elapsed)
+        
+        if remaining <= 0:
             st.session_state.remaining_seconds = 0
             st.session_state.timer_running = False
             st.session_state.timer_completed = True
@@ -48,25 +67,29 @@ def update_timer():
         else:
             st.session_state.remaining_seconds = remaining
 
-def get_timer_status():
-    #타이머가 완료되었을 때
-    if st.session_state.timer_completed:
-        return 'completed'
-    #타이머가 진행중이고 정지 버튼을 누르지 않았을 때
-    elif st.session_state.timer_running and not st.session_state.timer_paused:
-        return 'running'
-    #정지 버튼을 눌렀을 때
-    elif st.session_state.timer_paused:
-        return 'paused'
-    #그 외
-    else:
-        return 'stopped'
+def format_time(seconds):
+    """초를 HH:MM:SS 형태로 변환"""
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    secs = seconds % 60
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
 
-def format_time(second):
-    hours = second//3600
-    minutes = (second%3600)//60
-    seconds = second%60
-    return f'{hours:02d}:{minutes:02d}:{seconds:02d}'
+def reset_timer():
+    """타이머 완전 리셋"""
+    st.session_state.timer_running = False
+    st.session_state.timer_paused = False
+    st.session_state.start_time = None
+    st.session_state.pause_start_time = None
+    st.session_state.total_pause_time = 0
+    st.session_state.remaining_seconds = st.session_state.total_seconds
+    st.session_state.timer_completed = False
+    st.session_state.show_celebration = False
+
+def set_timer_duration(minutes):
+    """타이머 시간 설정 및 슬라이더 동기화"""
+    st.session_state.total_seconds = minutes * 60
+    st.session_state.remaining_seconds = minutes * 60
+    st.session_state.slider_minutes = minutes
 
 update_timer()
 current_status = get_timer_status()
@@ -110,11 +133,90 @@ with col_left:
         </style>
     """, unsafe_allow_html=True)
 
+    time_color = "#ff4444" if st.session_state.remaining_seconds <= 60 else "var(--primary-text-color)"
+
     st.markdown(f"""
-        <div class="timer-time" style="text-align: center; font-size: 4rem; font-weight: bold; margin: 2rem 0;">
-            {format_time(st.session_state.remaining_seconds)}
-        </div>
+    <div class="timer-time" style="text-align: center; font-size: 4rem; font-weight: bold; 
+                color: {time_color}; margin: 2rem 0;">
+        {format_time(st.session_state.remaining_seconds)}
+    </div>
     """, unsafe_allow_html=True)
+
+    # 통계 섹션
+    if st.session_state.total_seconds > 0:
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("설정 시간", format_time(st.session_state.total_seconds))
+        with col2:
+            elapsed = st.session_state.total_seconds - st.session_state.remaining_seconds
+            st.metric("경과 시간", format_time(elapsed))
+
+    # 타이머 완료 처리
+    if st.session_state.timer_completed and st.session_state.show_celebration:
+        st.balloons()
+        st.success("타이머가 완료되었습니다.")
+
+    # 남은 시간에 따른 경고
+    if st.session_state.timer_running and not st.session_state.timer_paused:
+        if st.session_state.remaining_seconds <= 10 and st.session_state.remaining_seconds > 0:
+            st.error("🚨 10초 이하 남았습니다!")
+        elif st.session_state.remaining_seconds <= 60 and st.session_state.remaining_seconds > 0:
+            st.warning("⚠️ 1분 이하 남았습니다!")
+
+    # 컨트롤 버튼
+    button_col1, button_col2, button_col3 = st.columns([1, 1, 1])
+
+    with button_col1:
+        if not st.session_state.timer_running and not st.session_state.timer_paused:
+            if st.button("▶️", key="play_btn", help="시작", type="primary"):
+                st.session_state.timer_running = True
+                st.session_state.start_time = time.time()
+                st.session_state.total_pause_time = 0
+                st.session_state.timer_completed = False
+                st.success("타이머가 시작되었습니다.")
+                st.rerun()
+        elif st.session_state.timer_running and not st.session_state.timer_paused:
+            if st.button("⏸️", key="pause_btn", help="일시정지"):
+                st.session_state.timer_paused = True
+                st.session_state.pause_start_time = time.time()
+                st.info("타이머가 일시정지되었습니다.")
+                st.rerun()
+        elif st.session_state.timer_paused:
+            if st.button("▶️", key="resume_btn", help="재개", type="primary"):
+                st.session_state.timer_paused = False
+                if st.session_state.pause_start_time:
+                    pause_duration = time.time() - st.session_state.pause_start_time
+                    st.session_state.total_pause_time += pause_duration
+                    st.session_state.pause_start_time = None
+                st.success("타이머가 재개되었습니다.")
+                st.rerun()
+
+    with button_col2:
+        if st.button("🔁", key="reset_btn", help="리셋"):
+            st.session_state.timer_running = False
+            st.session_state.timer_paused = False
+            st.session_state.start_time = None
+            st.session_state.pause_start_time = None
+            st.session_state.total_pause_time = 0
+            st.session_state.remaining_seconds = st.session_state.total_seconds
+            st.session_state.timer_completed = False
+            st.session_state.show_celebration = False
+            st.info("타이머가 리셋되었습니다.")
+            st.rerun()
+
+    with button_col3:
+        if st.button("1분 추가", key="add_minute_btn", help="+1분 추가"):
+            # 1분(60초) 추가
+            st.session_state.remaining_seconds += 60
+            st.session_state.total_seconds += 60
+            # 타이머가 완료된 상태였다면 완료 상태 해제
+            if st.session_state.timer_completed:
+                st.session_state.timer_completed = False
+                st.session_state.show_celebration = False
+            st.toast("1분이 추가되었습니다!")
+            st.rerun()
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 with col_right:
     pass
