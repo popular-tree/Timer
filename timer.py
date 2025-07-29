@@ -323,3 +323,34 @@ with col_right:
         st.rerun()
     
     st.divider()
+
+    # 상세 타이머 설정
+    st.markdown("⏰ **타이머 상세 설정 (시:분:초)**")
+
+    detail_col1, detail_col2, detail_col3 = st.columns(3)
+    current_total = st.session_state.total_seconds
+
+    with detail_col1:
+        st.markdown("**시간**")
+        hours = st.number_input("시간", 0, 23, current_total // 3600, key="hours_input", label_visibility="collapsed")
+    
+    with detail_col2:
+        st.markdown("**분**")
+        minutes = st.number_input("분", 0, 59, (current_total % 3600) // 60, key="minutes_input", label_visibility="collapsed")
+    
+    with detail_col3:
+        st.markdown("**초**")
+        seconds = st.number_input("초", 0, 59, current_total % 60, key="seconds_input", label_visibility="collapsed")
+    
+    if st.button("상세 설정 적용", type="primary", key="apply_detail"):
+        total_time = hours * 3600 + minutes * 60 + seconds
+        if total_time > 0:
+            st.session_state.total_seconds = total_time
+            st.session_state.remaining_seconds = total_time
+            reset_timer()
+            st.toast(f"{format_time(total_time)} 설정 완료!")
+            st.rerun()
+        else:
+            st.error("시간을 1초 이상 설정해주세요!")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
