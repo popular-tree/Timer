@@ -360,3 +360,12 @@ if st.session_state.timer_running and not st.session_state.timer_paused and not 
     # 1초마다 자동 새로고침
     time.sleep(1)
     st.rerun()
+
+st.divider()
+
+# 푸터
+st.markdown("""
+<div style='text-align: center; color: #666; font-size: 0.9em; margin-top: 2rem;'>
+    © WENIV All rights reserved
+</div>
+""", unsafe_allow_html=True)
