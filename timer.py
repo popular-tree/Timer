@@ -354,3 +354,9 @@ with col_right:
             st.error("시간을 1초 이상 설정해주세요!")
     
     st.markdown('</div>', unsafe_allow_html=True)
+
+# 실시간 업데이트를 위한 자동 새로고침
+if st.session_state.timer_running and not st.session_state.timer_paused and not st.session_state.timer_completed:
+    # 1초마다 자동 새로고침
+    time.sleep(1)
+    st.rerun()
