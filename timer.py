@@ -231,7 +231,7 @@ with col_left:
 
     # 배경음악 섹션
     st.markdown('<div class="music-container">', unsafe_allow_html=True)
-    st.markdown("🎵 **배경 음악**")
+    st.subheader("🎵 **배경 음악**")
 
     st.markdown("**음악 선택**")
     selected_music = st.selectbox(
@@ -269,7 +269,7 @@ with col_right:
     }
     # 설정 패널
     st.markdown('<div class="setting-container">', unsafe_allow_html=True)
-    st.markdown("⚙️ **타이머 설정**")
+    st.subheader("⚙️ **타이머 설정**")
 
     # 빠른 타이머 설정
     st.markdown("**빠른 타이머 설정**", help='자주 사용하는 시간으로 빠르게 설정하세요.')
@@ -292,5 +292,34 @@ with col_right:
                     reset_timer()  # 프리셋 변경 시 타이머 리셋
                     st.toast(f"{preset} 설정 완료")
                     st.rerun()
+    
+    st.divider()
+
+    # 타이머 시간 슬라이더
+    timer_col1, timer_col2 = st.columns([2, 1])
+
+    with timer_col1:
+        st.markdown("**사용자 설정 (분)**")
+
+    with timer_col2:
+        current_minutes = st.session_state.total_seconds // 60
+        st.markdown(f'<p style="text-align: right;"><strong>{current_minutes}분</strong></p>', unsafe_allow_html=True)
+        # st.markdown(f'<p style="text-align: right;"><strong>{st.session_state.slider_minutes}분</strong></p>', unsafe_allow_html=True)
+
+    # 슬라이더 값 동기화
+    slider_minutes = st.slider(
+        "타이머 시간", 
+        1, 120, 
+        st.session_state.total_seconds // 60, 
+        key="time_slider",
+        help="1분부터 120분까지 설정 가능합니다."
+    )
+    # st.session_state.slider_minutes=slider_minutes
+
+    if st.button("⚙️ 설정 적용", type="primary", key="apply_slider"):
+        set_timer_duration(slider_minutes)
+        reset_timer()
+        st.toast(f"{slider_minutes}분 설정 완료")
+        st.rerun()
     
     st.divider()
