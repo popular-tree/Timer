@@ -258,4 +258,39 @@ with col_left:
     st.markdown('</div>', unsafe_allow_html=True)
 
 with col_right:
-    pass
+    # 타이머 프리셋 데이터
+    timer_presets = {
+        "5분": 5,
+        "15분": 15,
+        "25분": 25,
+        "30분": 30,
+        "45분": 45,
+        "60분": 60
+    }
+    # 설정 패널
+    st.markdown('<div class="setting-container">', unsafe_allow_html=True)
+    st.markdown("⚙️ **타이머 설정**")
+
+    # 빠른 타이머 설정
+    st.markdown("**빠른 타이머 설정**", help='자주 사용하는 시간으로 빠르게 설정하세요.')
+    
+    # 프리셋 버튼들 (2x3 그리드)
+    preset_col1, preset_col2, preset_col3 = st.columns(3)
+    
+    preset_buttons = [
+        (preset_col1, ["5분", "30분"]),
+        (preset_col2, ["15분", "45분"]),
+        (preset_col3, ["25분", "60분"])
+    ]
+
+    for col, presets in preset_buttons:
+        with col:
+            for preset in presets:
+                if st.button(preset, key=f"preset_{preset}", type="secondary"):
+                    minutes = timer_presets[preset]
+                    set_timer_duration(minutes)
+                    reset_timer()  # 프리셋 변경 시 타이머 리셋
+                    st.toast(f"{preset} 설정 완료")
+                    st.rerun()
+    
+    st.divider()
