@@ -206,13 +206,27 @@ with col_left:
 
     with button_col3:
         if st.button("1분 추가", key="add_minute_btn", help="+1분 추가", use_container_width=True):
-            # 1분(60초) 추가
-            st.session_state.remaining_seconds += 60
-            st.session_state.total_seconds += 60
-            # 타이머가 완료된 상태였다면 완료 상태 해제
-            if st.session_state.timer_completed:
+            if st.session_state.timer_completed: #타이머 완료
+                remaining_now = st.session_state.total_seconds
+                st.session_state.remaining_seconds = 60
+                st.session_state.total_seconds += 60
                 st.session_state.timer_completed = False
                 st.session_state.show_celebration = False
+
+                current_time = time.time()
+
+                st.session_state.timer_running = True
+                st.session_state.timer_paused = False
+                st.session_state.start_time = current_time - remaining_now
+                st.session_state.total_pause_time = 0
+            else: # 타이머 실행 중
+                # 1분(60초) 추가
+                st.session_state.remaining_seconds += 60
+                st.session_state.total_seconds += 60
+                # 타이머가 완료된 상태였다면 완료 상태 해제
+                if st.session_state.timer_completed:
+                    st.session_state.timer_completed = False
+                    st.session_state.show_celebration = False
             st.toast("1분이 추가되었습니다!")
             st.rerun()
 
