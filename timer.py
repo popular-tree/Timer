@@ -205,7 +205,7 @@ with col_left:
             st.rerun()
 
     with button_col3:
-        if st.button("1분 추가", key="add_minute_btn", help="+1분 추가"):
+        if st.button("1분 추가", key="add_minute_btn", help="+1분 추가", use_container_width=True):
             # 1분(60초) 추가
             st.session_state.remaining_seconds += 60
             st.session_state.total_seconds += 60
